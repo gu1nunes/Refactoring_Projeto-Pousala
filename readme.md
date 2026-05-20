@@ -277,3 +277,76 @@ O **Abstract Factory aplicado a Reservas** permite que o sistema evolua naturalm
 - Modificar serviços de um tipo não afeta outros tipos
 - Histórico completo de cada reserva fica registrado no banco
 - Código limpo, sem condicionais, seguindo Single Responsibility Principle
+
+---
+
+## 🛡️ Padrão Estrutural - Proxy
+
+### Descrição
+
+O padrão Proxy será utilizado para controlar o acesso a operações críticas no sistema, validando permissões e estado antes de executar ações. Cada proxy funcionará como um "intermediário" entre o usuário e a ação desejada.
+
+### Estrutura de Implementação
+
+**ProxyPropriedade:**
+- Valida se propriedade está ativa antes de mostrar detalhes
+- Bloqueia reserva se não há disponibilidade
+- Verifica permissões do usuário (só anfitrião pode editar)
+- Registra tentativas de acesso não autorizado
+
+**ProxyChat:**
+- Só permite chat se há reserva ativa na propriedade
+- Bloqueia mensagens se usuário foi bloqueado
+- Valida se ambos os participantes existem
+- Impede mensagens para propriedades deletadas
+
+**ProxyAvaliacao:**
+- Só permite avaliar se hospedagem foi concluída
+- Impede avaliação duplicada (um hóspede por propriedade)
+- Bloqueia se período de avaliação expirou
+- Valida nota entre 1-5 estrelas
+
+**ProxyReserva:**
+- Verifica disponibilidade de datas
+- Valida capacidade vs número de hóspedes
+- Bloqueia se hóspede tem reserva ativa no mesmo período
+- Verifica se propriedade está ativa
+
+### Benefícios
+
+✅ Segurança: Valida permissões antes de executar  
+✅ Integridade: Impede estados inválidos no banco  
+✅ Experiência: Usuário recebe mensagens de erro claras  
+✅ Auditoria: Registra tentativas de acesso  
+✅ Manutenibilidade: Lógica de validação centralizada
+
+---
+
+## 🔗 Padrão Comportamental - Mediator
+
+### Descrição
+
+O padrão Mediator será aplicado para centralizar a comunicação entre hóspedes e anfitriões. Ao invés de deixar essas duas entidades se comunicarem diretamente, um intermediário (ChatMediator) vai gerenciar todas as interações, validações e notificações.
+
+### Funcionamento
+
+O ChatMediator atuará como um coordenador central que:
+- Recebe mensagens de hóspede e anfitrião
+- Valida se ambas as partes têm permissão para se comunicar (só conversa se há reserva ativa)
+- Armazena o histórico da conversa
+- Notifica ambas as partes quando há nova mensagem
+- Pode bloquear comunicação se necessário (usuário bloqueado, propriedade deletada)
+
+Assim, a lógica de comunicação fica centralizada e reutilizável, evitando acoplamento entre Hóspede e Anfitrião.
+
+### Fluxo
+
+Hóspede envia mensagem → ChatMediator recebe → Valida → Armazena → Notifica Anfitrião
+
+### Benefícios
+
+✅ Comunicação controlada e validada  
+✅ Não duplica regras de negócio  
+✅ Facilmente extensível (email, push notifications)  
+✅ Centraliza lógica de interação  
+✅ Reduz acoplamento entre entidades
