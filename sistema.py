@@ -2,6 +2,7 @@ import unicodedata #questao dos acentos e letras maiusculas
 from datetime import datetime #identificacao passado/futuro
 from abc import ABC, abstractmethod #criar classe abst, forcar a subclasses implementarem
 from banco import BancoDeDados #classe do banco.py
+from factories import ReservaBasicaFactory, ReservaPremiumFactory, ReservaVIPFactory #importar factories
 
 
 def remover_acentos(texto):
@@ -22,11 +23,24 @@ class Hospede(Usuario): #heranca, classe filha, herda tudo de usuario
     def __init__(self, nome, email, senha): 
         super().__init__(nome, email, senha) #chamou o construtor pai p criar esses atributos
         self.__reservas = [] #encapsulamento, so a propria classe pode acessar diretamente, cria uma lista privada
-    def fazer_reserva(self, propriedade, data_inicio, data_fim): #inicializar um metodo
-        reserva = Reserva(self, propriedade, data_inicio, data_fim) #cria um objeto reserva, self = hosp atual, liga o hosp a propriedade e as datas
+    
+    def fazer_reserva(self, propriedade, data_inicio, data_fim, tipo_reserva="basica"): #inicializar um metodo
+        # ============== ABSTRACT FACTORY - ESCOLHE A FACTORY ==============
+        if tipo_reserva == "premium":
+            factory = ReservaPremiumFactory()
+        elif tipo_reserva == "vip":
+            factory = ReservaVIPFactory()
+        else:  # "basica" ou padrão
+            factory = ReservaBasicaFactory()
+        
+        # Factory cria a reserva completa com seus serviços
+        reserva = factory.criar(self, propriedade, data_inicio, data_fim)
+        # ================================================================
+        
         self.__reservas.append(reserva); #encapsulamento, adiciona a reserva na lista privada do hospede
         propriedade.adicionar_reserva(reserva); #adiciona a reserva em propriedade 
         return reserva 
+    
     def mostrar_painel(self): return f"Painel do Hóspede: {self.nome}" #polimorfismo, tbm exite o painel p anfitriaro, Mesmo nome, comportamento diferente
 
 class Anfitriao(Usuario): #heranca, classe filha, herda tudo de usuario
@@ -83,6 +97,12 @@ class Reserva:
         self.data_inicio = d_in; 
         self.data_fim = d_out; 
         self.__status = "ativa"
+        # ============== NOVOS ATRIBUTOS PARA ABSTRACT FACTORY ==============
+        self.tipo = "basica"  # Tipo da reserva: 'basica', 'premium', 'vip'
+        self.servicos = []  # Lista de serviços inclusos
+        self.preco_final = propriedade.preco  # Preço final com serviços
+        self.beneficio_especial = None  # Benefício especial (ex: 'check_in_antecipado')
+    
     @property
     def status(self): 
         return self.__status #encapsulamento, devolve se a reserva esta ativa ou concluida, @property p ser so leitura e n conseguir alterar p cancelado por fora
@@ -129,9 +149,33 @@ class Sistema: #responsavel por app.py, regras do negocio e o banco de dados
             return p 
         return None
 
-    def registrar_reserva(self, h, p, d_in, d_out): #abstracao, recebe o hospedde, propriedade e as datas
-        res = h.fazer_reserva(p, d_in, d_out) #manda p hospede fazer a reserva
-        self.db.salvar_reserva(p.nome, h.email, d_in, d_out, res.status);  #dps q o hospede cria a reserva eh mandada para o bd
+    def registrar_reserva(self, h, p, d_in, d_out, tipo_reserva="basica"): #abstracao, recebe o hospedde, propriedade e as datas
+        res = h.fazer_reserva(p, d_in, d_out, tipo_reserva=tipo_reserva) #manda p hospede fazer a reserva com tipo especificado
+        
+        # ============== SALVA A RESERVA NO BANCO ==============
+        reserva_id = self.db.salvar_reserva(
+            p.nome, 
+            h.email, 
+            d_in, 
+            d_out, 
+            res.status,
+            tipo_reserva=res.tipo,           # Tipo criado pela factory
+            preco_final=res.preco_final      # Preço calculado pela factory
+        )
+        
+        # ============== SALVA OS SERVIÇOS ==============
+        for servico in res.servicos:
+            self.db.salvar_servico_reserva(
+                reserva_id,
+                servico["nome"],
+                servico["custo"],
+                incluido=True
+            )
+        
+        # ============== SALVA BENEFÍCIOS VIP ==============
+        if res.beneficio_especial:
+            self.db.salvar_beneficio_vip(reserva_id, res.beneficio_especial)
+        
         return res 
     
     

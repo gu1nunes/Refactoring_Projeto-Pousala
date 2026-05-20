@@ -85,9 +85,11 @@ def reservar(nome):
     p = next((x for x in meu_pousala.propriedades if x.nome == urllib.parse.unquote(nome)), None)
     
     erro_reserva = None
+    mensagem_reserva = None
     if request.method == 'POST':
         d_in = request.form.get('data_inicio')
         d_out = request.form.get('data_fim')
+        tipo_reserva = request.form.get('tipo_reserva', 'basica')  # ← NOVO: Tipo de reserva
         hoje = datetime.now().strftime('%Y-%m-%d')
         
         # VALIDAÇÃO DE DATAS NA RESERVA
@@ -96,10 +98,17 @@ def reservar(nome):
         elif d_out <= d_in:
             erro_reserva = "Erro: A data de saída deve ser depois da data de entrada."
         else:
-            meu_pousala.registrar_reserva(Hospede(session['usuario_nome'], session['usuario_email'], ""), p, d_in, d_out) #abstracao
-            return render_template('reserva.html', propriedade=p, mensagem="Reserva confirmada!")
+            # ← NOVO: Passa o tipo de reserva para registrar_reserva
+            res = meu_pousala.registrar_reserva(
+                Hospede(session['usuario_nome'], session['usuario_email'], ""), 
+                p, 
+                d_in, 
+                d_out,
+                tipo_reserva=tipo_reserva
+            )
+            mensagem_reserva = f"✅ Reserva {res.tipo.upper()} confirmada! Preço total: R${res.preco_final:.2f}"
             
-    return render_template('reserva.html', propriedade=p, erro=erro_reserva)
+    return render_template('reserva.html', propriedade=p, erro=erro_reserva, mensagem=mensagem_reserva)
 
 @app.route('/avaliar/<nome>', methods=['GET', 'POST'])
 def avaliar(nome):
