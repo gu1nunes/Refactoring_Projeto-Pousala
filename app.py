@@ -1,7 +1,8 @@
 import urllib.parse
 from datetime import datetime
 from flask import Flask, render_template, request, session, redirect
-from sistema import Sistema, Anfitriao, Hospede 
+from sistema import Sistema, Anfitriao, Hospede
+from proxies import ProxyPropriedade, ProxyChat, ProxyAvaliacao, ProxyReserva  # ← NOVO: Importa Proxies 
 
 app = Flask(__name__)
 app.secret_key = "chave_pousala_2024"
@@ -86,19 +87,24 @@ def reservar(nome):
     
     erro_reserva = None
     mensagem_reserva = None
+    preco_estimado = None
+    
     if request.method == 'POST':
         d_in = request.form.get('data_inicio')
         d_out = request.form.get('data_fim')
-        tipo_reserva = request.form.get('tipo_reserva', 'basica')  # ← NOVO: Tipo de reserva
-        hoje = datetime.now().strftime('%Y-%m-%d')
+        tipo_reserva = request.form.get('tipo_reserva', 'basica')
         
-        # VALIDAÇÃO DE DATAS NA RESERVA
-        if d_in < hoje:
-            erro_reserva = "Erro: Data de check-in não pode ser no passado."
-        elif d_out <= d_in:
-            erro_reserva = "Erro: A data de saída deve ser depois da data de entrada."
-        else:
-            # ← NOVO: Passa o tipo de reserva para registrar_reserva
+        # ============== PROXY: VALIDA RESERVA ==============
+        proxy_reserva = ProxyReserva(
+            p, 
+            Hospede(session['usuario_nome'], session['usuario_email'], ""),
+            d_in,
+            d_out,
+            tipo_reserva=tipo_reserva
+        )
+        
+        if proxy_reserva.pode_reservar():
+            # Se validou, faz a reserva
             res = meu_pousala.registrar_reserva(
                 Hospede(session['usuario_nome'], session['usuario_email'], ""), 
                 p, 
@@ -107,26 +113,40 @@ def reservar(nome):
                 tipo_reserva=tipo_reserva
             )
             mensagem_reserva = f"✅ Reserva {res.tipo.upper()} confirmada! Preço total: R${res.preco_final:.2f}"
+        else:
+            # Se não validou, exibe erro do proxy
+            erro_reserva = proxy_reserva.obter_erro()
+            # Calcula preço estimado mesmo com erro para mostrar ao usuário
+            if d_in and d_out:
+                preco_estimado = proxy_reserva.obter_preco_estimado()
             
-    return render_template('reserva.html', propriedade=p, erro=erro_reserva, mensagem=mensagem_reserva)
+    return render_template('reserva.html', propriedade=p, erro=erro_reserva, mensagem=mensagem_reserva, preco_estimado=preco_estimado)
 
 @app.route('/avaliar/<nome>', methods=['GET', 'POST'])
 def avaliar(nome):
     if 'usuario_email' not in session: return redirect('/login')
     p = next((x for x in meu_pousala.propriedades if x.nome == urllib.parse.unquote(nome)), None)
     
-    email_logado = session['usuario_email'].strip().lower()
-    fez_reserva = any(reserva.hospede.email.strip().lower() == email_logado for reserva in p.reservas)
-    
-    if not fez_reserva:
-        return render_template('avaliar.html', propriedade=p, mensagem="Ops! Você só pode avaliar locais onde já fez uma reserva.", erro=True)
+    # ============== PROXY: VALIDA AVALIAÇÃO ==============
+    proxy_avaliacao = ProxyAvaliacao(p, session['usuario_email'])
     
     mensagem = None
+    erro = None
+    
     if request.method == 'POST':
-        meu_pousala.registrar_avaliacao(p.nome, session['usuario_nome'], int(request.form.get('nota')), request.form.get('comentario')) #abstracao
-        mensagem = "Obrigado pela sua avaliação!"
+        nota = request.form.get('nota')
+        comentario = request.form.get('comentario')
         
-    return render_template('avaliar.html', propriedade=p, mensagem=mensagem)
+        # Proxy valida se pode avaliar
+        if proxy_avaliacao.pode_avaliar(nota, comentario):
+            # Se validou, registra avaliação
+            meu_pousala.registrar_avaliacao(p.nome, session['usuario_nome'], int(nota), comentario)
+            mensagem = "Obrigado pela sua avaliação!"
+        else:
+            # Se não validou, exibe erro do proxy
+            erro = proxy_avaliacao.obter_erro()
+    
+    return render_template('avaliar.html', propriedade=p, mensagem=mensagem, erro=erro)
 
 @app.route('/duvidas/<nome>')
 def duvidas(nome):
@@ -145,13 +165,26 @@ def chat(nome, h_email):
     h_e = h_email.strip().lower()
     log = session['usuario_email'].strip().lower()
     
-    if log not in [a_e, h_e]: return "Acesso negado. Você não pertence a este chat.", 403
+    # ============== PROXY: VALIDA CHAT ==============
+    proxy_chat = ProxyChat(p, h_e, a_e, meu_pousala)
+    
+    erro_chat = None
+    
+    # Valida acesso básico
+    if log not in [a_e, h_e]:
+        return "Acesso negado. Você não pertence a este chat.", 403
     
     if request.method == 'POST':
-        meu_pousala.enviar_mensagem(p_nome, log, a_e if log == h_e else h_e, request.form.get('texto'))
+        texto = request.form.get('texto')
+        
+        # Proxy valida se pode enviar mensagem
+        if proxy_chat.pode_enviar_mensagem(log, texto):
+            meu_pousala.enviar_mensagem(p_nome, log, a_e if log == h_e else h_e, texto)
+        else:
+            erro_chat = proxy_chat.obter_erro()
         
     msgs = meu_pousala.obter_mensagens(p_nome, h_e, a_e)
-    return render_template('chat.html', propriedade=p, mensagens=msgs, logado=log, hospede_email=h_e)
+    return render_template('chat.html', propriedade=p, mensagens=msgs, logado=log, hospede_email=h_e, erro=erro_chat)
 
 @app.route('/painel', methods=['GET', 'POST'])
 def painel():
