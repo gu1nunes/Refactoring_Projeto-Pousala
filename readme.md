@@ -326,27 +326,148 @@ O padrão Proxy será utilizado para controlar o acesso a operações críticas 
 
 ### Descrição
 
-O padrão Mediator será aplicado para centralizar a comunicação entre hóspedes e anfitriões. Ao invés de deixar essas duas entidades se comunicarem diretamente, um intermediário (ChatMediator) vai gerenciar todas as interações, validações e notificações.
+O padrão Mediator centraliza a comunicação entre hóspedes e anfitriões. Ao invés de deixar essas duas entidades se comunicarem diretamente, um intermediário (ChatMediator) gerencia todas as interações, validações e notificações.
 
-### Funcionamento
+**Sem Mediator (Problema):**
+```
+Hospede <--diretamente--> Anfitriao (Acoplamento)
+```
 
-O ChatMediator atuará como um coordenador central que:
-- Recebe mensagens de hóspede e anfitrião
-- Valida se ambas as partes têm permissão para se comunicar (só conversa se há reserva ativa)
-- Armazena o histórico da conversa
-- Notifica ambas as partes quando há nova mensagem
-- Pode bloquear comunicação se necessário (usuário bloqueado, propriedade deletada)
+**Com Mediator (Solução):**
+```
+Hospede <--> ChatMediator <--> Anfitriao (Desacoplado)
+```
 
-Assim, a lógica de comunicação fica centralizada e reutilizável, evitando acoplamento entre Hóspede e Anfitrião.
+### Implementação
 
-### Fluxo
+#### Arquivo: `mediator.py`
 
-Hóspede envia mensagem → ChatMediator recebe → Valida → Armazena → Notifica Anfitrião
+A classe `ChatMediator` implementa:
+
+**1. Validações de Comunicação**
+```python
+pode_conversar(hospede_email, anfitriao_email, propriedade_nome) -> (bool, str)
+```
+- Valida se não é comunicação com a mesma pessoa
+- Verifica se existe reserva ativa entre hóspede e anfitrião
+- Retorna (autorizado, mensagem_erro)
+
+**2. Envio de Mensagens**
+```python
+enviar_mensagem(propriedade_nome, remetente_email, destinatario_email, texto, banco_dados) -> (bool, str)
+```
+- Valida se pode conversar
+- Valida conteúdo da mensagem (não vazia, máx 500 caracteres)
+- Armazena no histórico em memória
+- Persiste no banco de dados
+- Notifica destinatário
+
+**3. Gerenciamento de Histórico**
+```python
+obter_historico(hospede_email, anfitriao_email) -> List[Dict]
+marcar_como_lida(hospede_email, anfitriao_email, indice_msg) -> bool
+```
+- Retorna conversa entre dois usuários ordenada por timestamp
+- Marca mensagens como lidas
+
+**4. Notificações**
+```python
+obter_notificacoes_pendentes(usuario_email) -> List[Dict]
+limpar_notificacoes(usuario_email) -> None
+```
+- Sistema de notificações em tempo real
+- Registra eventos (nova mensagem, etc)
+
+**5. Gerenciamento de Usuários**
+```python
+registrar_usuario_ativo(usuario_email, tipo) -> None
+usuario_esta_ativo(usuario_email) -> bool
+```
+- Rastreia quem está online
+- Permite coordenar comunicação de usuários ativos
+
+### Fluxo de Envio de Mensagem
+
+```
+1. Hóspede submete mensagem no formulário (/chat)
+   ↓
+2. app.py captura e valida com ProxyChat
+   ↓
+3. app.py chama meu_pousala.pode_conversar() via Mediator
+   ↓
+4. ChatMediator.pode_conversar() valida:
+   - Não é comunicação com si mesmo
+   - Existe reserva ativa
+   ↓
+5. Se validou, app.py chama meu_pousala.enviar_mensagem()
+   ↓
+6. Sistema.enviar_mensagem() delega ao ChatMediator
+   ↓
+7. ChatMediator.enviar_mensagem() executa:
+   - Valida mensagem (não vazia, 500 char max)
+   - Armazena em histórico em memória
+   - Persiste no banco via BancoDeDados
+   - Notifica o destinatário
+   ↓
+8. Retorna sucesso ✅
+```
+
+### Integração com Código Existente
+
+**Em `sistema.py`:**
+```python
+class Sistema:
+    def __init__(self):
+        self.chat_mediator = ChatMediator(self.db)  # Inicializa
+    
+    def pode_conversar(self, hospede_email, anfitriao_email, propriedade_nome):
+        """Delega ao Mediator a validação de conversa"""
+        return self.chat_mediator.pode_conversar(...)
+    
+    def enviar_mensagem(self, prop, rem, dest, texto):
+        """Mediator coordena o envio de mensagem"""
+        sucesso, msg = self.chat_mediator.enviar_mensagem(...)
+        if not sucesso: raise Exception(msg)
+```
+
+**Em `app.py` rota `/chat`:**
+```python
+# Proxy valida acesso
+if proxy_chat.pode_enviar_mensagem(log, texto):
+    # Mediator coordena envio
+    pode_conversar, erro = meu_pousala.pode_conversar(h_e, a_e, p_nome)
+    if pode_conversar:
+        meu_pousala.enviar_mensagem(...)
+```
+
+### Regras de Negócio Centralizadas
+
+**Quem pode conversar?**
+- ✅ Hóspede e Anfitrião com reserva ativa
+- ❌ Usuários sem reserva relacionada
+- ❌ Comunicação com a mesma pessoa
+- ❌ Propriedades não encontradas
+
+**Validações de Mensagem**
+- ❌ Mensagem vazia
+- ❌ Mais de 500 caracteres
+- ❌ Caracteres inválidos (\x00, quebras duplas)
 
 ### Benefícios
 
-✅ Comunicação controlada e validada  
-✅ Não duplica regras de negócio  
-✅ Facilmente extensível (email, push notifications)  
-✅ Centraliza lógica de interação  
-✅ Reduz acoplamento entre entidades
+✅ **Desacoplamento** - Hóspede e Anfitrião não dependem um do outro  
+✅ **Centralização** - Toda lógica de chat em um só lugar  
+✅ **Extensibilidade** - Fácil adicionar email, push notifications, etc  
+✅ **Auditoria** - Histórico completo em um só ponto  
+✅ **Reusabilidade** - Múltiplas conversas usam a mesma lógica  
+✅ **Manutenibilidade** - Mudanças só afetam o Mediator
+
+### Estatísticas e Monitoramento
+
+```python
+obter_total_mensagens(hospede_email, anfitriao_email) -> int
+obter_usuarios_ativos_count() -> int
+obter_conversas_ativas() -> List[str]
+```
+
+Facilita análise de padrões de comunicação e uso do sistema.

@@ -3,6 +3,7 @@ from datetime import datetime #identificacao passado/futuro
 from abc import ABC, abstractmethod #criar classe abst, forcar a subclasses implementarem
 from banco import BancoDeDados #classe do banco.py
 from factories import ReservaBasicaFactory, ReservaPremiumFactory, ReservaVIPFactory #importar factories
+from mediator import ChatMediator #importar mediator para coordenação de chats
 
 
 def remover_acentos(texto):
@@ -111,6 +112,7 @@ class Sistema: #responsavel por app.py, regras do negocio e o banco de dados
     def __init__(self): #construtor
         self.db = BancoDeDados();  #conecta com o banco de dados
         self.__propriedades = []; #cria uma lista privada e vazia p guardar as propriedades na memoria
+        self.chat_mediator = ChatMediator(self.db)  # ← NOVO: Mediator para coordenação de chats
         self.carregar_dados_do_banco() #carrega tudo q ja existe no BD
 
     def carregar_dados_do_banco(self):
@@ -189,11 +191,27 @@ class Sistema: #responsavel por app.py, regras do negocio e o banco de dados
         return None
 
     def enviar_mensagem(self, prop, rem, dest, texto): #envia a mensagem p BD
-        self.db.salvar_mensagem(prop, rem, dest, texto)
+        # ============== MEDIATOR: COORDENA ENVIO DE MENSAGEM ==============
+        sucesso, mensagem = self.chat_mediator.enviar_mensagem(prop, rem, dest, texto, self.db)
+        if sucesso:
+            return True
+        else:
+            raise Exception(mensagem)  # Se validação falhar, levanta erro
+    
     def obter_mensagens(self, prop, h_e, a_e):
+        # ============== MEDIATOR: OBTÉM HISTÓRICO ==============
         return [{'remetente': m[2], 'texto': m[4]} 
                 for m in self.db.buscar_mensagens() 
                 if m[1] == prop and ((m[2] == h_e and m[3] == a_e) or (m[2] == a_e and m[3] == h_e))]
+    
+    def pode_conversar(self, hospede_email, anfitriao_email, propriedade_nome):
+        """Valida se dois usuários podem conversar através do mediator."""
+        pode, erro = self.chat_mediator.pode_conversar(hospede_email, anfitriao_email, propriedade_nome)
+        return pode, erro
+    
+    def registrar_usuario_no_chat(self, usuario_email, tipo):
+        """Registra usuário como ativo no sistema de chat (mediator)."""
+        self.chat_mediator.registrar_usuario_ativo(usuario_email, tipo)
     
     def obter_chats_usuario(self, email): #retorna todas as conversas do usuar.
         e = str(email).strip().lower(); #normalizacao do email

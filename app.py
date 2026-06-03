@@ -168,6 +168,9 @@ def chat(nome, h_email):
     # ============== PROXY: VALIDA CHAT ==============
     proxy_chat = ProxyChat(p, h_e, a_e, meu_pousala)
     
+    # ============== MEDIATOR: VALIDA CONVERSA ==============
+    pode_conversar, erro_conversa = meu_pousala.pode_conversar(h_e, a_e, p_nome)
+    
     erro_chat = None
     
     # Valida acesso básico
@@ -177,9 +180,16 @@ def chat(nome, h_email):
     if request.method == 'POST':
         texto = request.form.get('texto')
         
-        # Proxy valida se pode enviar mensagem
+        # Primeiro valida via Proxy
         if proxy_chat.pode_enviar_mensagem(log, texto):
-            meu_pousala.enviar_mensagem(p_nome, log, a_e if log == h_e else h_e, texto)
+            # Se proxy passou, o Mediator coordena o envio
+            try:
+                if pode_conversar:
+                    meu_pousala.enviar_mensagem(p_nome, log, a_e if log == h_e else h_e, texto)
+                else:
+                    erro_chat = erro_conversa
+            except Exception as e:
+                erro_chat = str(e)
         else:
             erro_chat = proxy_chat.obter_erro()
         
