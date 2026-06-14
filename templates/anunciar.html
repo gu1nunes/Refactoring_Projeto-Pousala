@@ -1,50 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Anunciar Imóvel - pousa.lá</title>
     <style>
-        :root { --cor-fundo: #F7F9FA; --cor-primaria: #00A699; --cor-destaque: #FF5A5F; --cor-texto: #484848; --cor-branco: #FFFFFF; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--cor-fundo); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: var(--cor-texto); }
-        .card-anuncio { background-color: var(--cor-branco); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 450px; }
-        .card-anuncio h2 { text-align: center; color: var(--cor-primaria); margin-top: 0; font-size: 26px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 16px; }
-        .sucesso { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px; }
-        .voltar { display: block; text-align: center; margin-top: 15px; color: var(--cor-primaria); text-decoration: none; font-weight: bold; }
+        :root {
+            --cor-fundo: #F7F9FA;
+            --cor-primaria: #00A699;
+            --cor-destaque: #FF5A5F;
+            --cor-texto: #484848;
+            --cor-branco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--cor-fundo);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--cor-texto);
+        }
+
+        .card-anuncio {
+            background-color: var(--cor-branco);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .card-anuncio h2 {
+            text-align: center;
+            color: var(--cor-primaria);
+            margin-top: 0;
+            font-size: 26px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .sucesso {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .voltar {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--cor-primaria);
+            text-decoration: none;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <div class="card-anuncio">
         <h2>Cadastrar Novo Imóvel</h2>
-        
+
         {% if mensagem %}
-            <div class="sucesso">{{ mensagem }}</div>
-            <a href="javascript:history.back()" class="voltar">Voltar</a>
+        <div class="sucesso">{{ mensagem }}</div>
+        <a href="/" class="voltar">🏠 Início</a>
         {% else %}
-            <form method="POST">
+        <form method="POST">
+            <div class="form-group">
+                <label>Nome da Propriedade</label>
+                <input type="text" name="nome" placeholder="Ex: Casa na Árvore" required>
+            </div>
+            <div class="form-group">
+                <label>Localização (Cidade)</label>
+                <input type="text" name="localizacao" placeholder="Ex: Rio de Janeiro" required>
+            </div>
+            <div class="form-group">
+                <label>Capacidade (Pessoas)</label>
+                <input type="number" name="capacidade" min="1" value="2" required>
+            </div>
+            <div class="form-group">
                 <div class="form-group">
-                    <label>Nome da Propriedade</label>
-                    <input type="text" name="nome" placeholder="Ex: Casa na Árvore" required>
+
+                    <label>
+                        Tipos de Reserva Disponíveis
+                    </label>
+
+                    <input type="checkbox" name="tipos" value="basica" checked>
+
+                    Básica
+
+                    <br><br>
+
+                    <input type="checkbox" name="tipos" value="premium">
+
+                    Premium
+
+                    <br><br>
+
+                    <input type="checkbox" name="tipos" value="vip">
+
+                    VIP
+
                 </div>
-                <div class="form-group">
-                    <label>Localização (Cidade)</label>
-                    <input type="text" name="localizacao" placeholder="Ex: Rio de Janeiro" required>
-                </div>
-                <div class="form-group">
-                    <label>Capacidade (Pessoas)</label>
-                    <input type="number" name="capacidade" min="1" value="2" required>
-                </div>
-                <div class="form-group">
-                    <label>Preço por Noite (R$)</label>
-                    <input type="number" name="preco" min="1" step="0.01" placeholder="Ex: 150.00" required>
-                </div>
-                <button type="submit">Publicar Anúncio</button>
-            </form>
-            <a href="javascript:history.back()" class="voltar">Cancelar e voltar</a>
+                <label>Preço por Noite (R$)</label>
+                <input type="number" name="preco" min="1" step="0.01" placeholder="Ex: 150.00" required>
+            </div>
+            <button type="submit">Publicar Anúncio</button>
+        </form>
+        <a href="/" class="voltar">🏠 Voltar ao início</a>
         {% endif %}
     </div>
 </body>
+
 </html>

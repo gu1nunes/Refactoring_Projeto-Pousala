@@ -1,64 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Minhas Reservas - pousa.lá</title>
     <style>
-        :root { --cor-fundo: #F7F9FA; --cor-primaria: #00A699; --cor-destaque: #FF5A5F; --cor-texto: #484848; --cor-branco: #FFFFFF; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto); margin: 0; padding: 0; }
-        header { background-color: var(--cor-branco); padding: 15px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        header h1 { color: var(--cor-primaria); margin: 0; font-size: 24px; }
-        header a { text-decoration: none; color: var(--cor-texto); font-weight: bold; padding: 10px 20px; border-radius: 8px; border: 2px solid var(--cor-primaria); transition: all 0.3s ease; }
-        header a:hover { background-color: var(--cor-primaria); color: var(--cor-branco); }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .saudacao { font-size: 28px; color: var(--cor-primaria); margin-bottom: 30px; }
-        .reserva-item { background: var(--cor-branco); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 6px solid var(--cor-primaria); }
-        .reserva-item h2 { margin-top: 0; color: var(--cor-texto); font-size: 22px; }
-        .status-ativa { color: #00A699; font-weight: bold; text-transform: uppercase;}
-        .status-concluida { color: #666; font-weight: bold; text-transform: uppercase;}
-        .sem-reserva { color: #888; font-style: italic; font-size: 18px; text-align: center; margin-top: 20px;}
+        :root {
+            --cor-fundo: #F7F9FA;
+            --cor-primaria: #00A699;
+            --cor-destaque: #FF5A5F;
+            --cor-texto: #484848;
+            --cor-branco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--cor-branco);
+            padding: 15px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: var(--cor-primaria);
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header a {
+            text-decoration: none;
+            color: var(--cor-texto);
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--cor-primaria);
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            background-color: var(--cor-primaria);
+            color: var(--cor-branco);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .saudacao {
+            font-size: 28px;
+            color: var(--cor-primaria);
+            margin-bottom: 30px;
+        }
+
+        .reserva-item {
+            background: var(--cor-branco);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            border-left: 6px solid var(--cor-primaria);
+        }
+
+        .reserva-item h2 {
+            margin-top: 0;
+            color: var(--cor-texto);
+            font-size: 22px;
+        }
+
+        .status-ativa {
+            color: #00A699;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-concluida {
+            color: #666;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .sem-reserva {
+            color: #888;
+            font-style: italic;
+            font-size: 18px;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
 
     <header>
         <h1>pousa.lá</h1>
-        <a href="javascript:history.back()">Voltar</a>
+        <a href="/">🏠 Início</a>
     </header>
 
     <div class="container">
-        
+
         <h1 class="saudacao">Minhas Viagens 🧳</h1>
         {% if not reservas %}
-            <p class="sem-reserva">Você ainda não tem nenhuma viagem programada conosco.</p>
+        <p class="sem-reserva">Você ainda não tem nenhuma viagem programada conosco.</p>
         {% else %}
-            {% for reserva in reservas %}
-                <div class="reserva-item">
-                    <h2>🏨 {{ reserva.propriedade }} <span style="font-size: 14px; color: #666; font-weight: normal;">({{ reserva.localizacao }})</span></h2>
-                    <p>📅 <strong>Período:</strong> {{ reserva.data_inicio }} até {{ reserva.data_fim }}</p>
-                    <p>✅ <strong>Status:</strong> 
-                        <span class="{% if reserva.status == 'ativa' %}status-ativa{% else %}status-concluida{% endif %}">
-                            {{ reserva.status }}
-                        </span>
-                    </p>
-                </div>
-            {% endfor %}
+        {% for reserva in reservas %}
+        <div class="reserva-item">
+            <h2>🏨 {{ reserva.propriedade }} <span style="font-size: 14px; color: #666; font-weight: normal;">({{
+                    reserva.localizacao }})</span></h2>
+            <p>📅 <strong>Período:</strong> {{ reserva.data_inicio }} até {{ reserva.data_fim }}</p>
+            <p>⭐ <strong>Plano:</strong> {{ reserva.tipo|upper }}</p>
+            <p>💰 <strong>Preço:</strong> R$ {{ reserva.preco }}</p>
+            <p>✅ <strong>Status:</strong>
+                <span class="{% if reserva.status == 'ativa' %}status-ativa{% else %}status-concluida{% endif %}">
+                    {{ reserva.status }}
+                </span>
+            </p>
+            {% if reserva.status == 'ativa' %}
+            <a href="/cancelar_reserva/{{ reserva.propriedade|urlencode }}/{{ reserva.data_inicio }}"
+                style="display:inline-block; margin-top:10px; padding:8px 12px; background:#dc3545; color:white; text-decoration:none; border-radius:6px;">
+                ❌ Cancelar Reserva
+            </a>
+
+            <a href="/chat/{{ reserva.propriedade|urlencode }}/{{ session.usuario_email }}" style="display:inline-block; margin-top:10px; margin-left:10px; padding:8px 12px; background:#00A699; color:white; text-decoration:none; border-radius:6px;">
+                💬 Conversar com anfitrião
+            </a>
+
+            {% endif %}
+        </div>
+        {% endfor %}
         {% endif %}
 
         <h2 style="margin-top: 50px; color: var(--cor-primaria);">Minhas Conversas 💬</h2>
         {% if not contatos_chat %}
-            <p class="sem-reserva">Você ainda não iniciou nenhum chat com os anfitriões.</p>
+        <p class="sem-reserva">Você ainda não iniciou nenhum chat com os anfitriões.</p>
         {% else %}
-            {% for prop_nome, outro_email in contatos_chat %}
-                <div class="reserva-item" style="border-left-color: #333; background-color: #f0f0f0;">
-                    <p>🏨 <strong>Sobre a propriedade:</strong> {{ prop_nome }}</p>
-                    <p>👤 <strong>Com o anfitrião:</strong> {{ outro_email }}</p>
-                    <a href="/chat/{{ prop_nome|urlencode }}/{{ session.usuario_email }}" style="display: inline-block; margin-top: 10px; color: #00A699; font-weight: bold; text-decoration: none;">Abrir Chat ➔</a>
-                </div>
-            {% endfor %}
+        {% for prop_nome, outro_email in contatos_chat %}
+        <div class="reserva-item" style="border-left-color: #333; background-color: #f0f0f0;">
+            <p>🏨 <strong>Sobre a propriedade:</strong> {{ prop_nome }}</p>
+            <p>👤 <strong>Com o anfitrião:</strong> {{ outro_email }}</p>
+            <a href="/chat/{{ prop_nome|urlencode }}/{{ session.usuario_email }}"
+                style="display: inline-block; margin-top: 10px; color: #00A699; font-weight: bold; text-decoration: none;">Abrir
+                Chat ➔</a>
+        </div>
+        {% endfor %}
         {% endif %}
-        
+
     </div>
 
 </body>
+
 </html>

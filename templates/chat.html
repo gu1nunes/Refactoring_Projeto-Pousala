@@ -1,48 +1,159 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Chat - pousa.lá</title>
     <style>
-        :root { --cor-fundo: #F7F9FA; --cor-primaria: #00A699; --cor-destaque: #FF5A5F; --cor-branco: #FFFFFF; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--cor-fundo); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;}
-        .chat-container { background: var(--cor-branco); width: 100%; max-width: 600px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; height: 80vh;}
-        .chat-header { background: var(--cor-primaria); color: white; padding: 20px; text-align: center; font-weight: bold;}
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #e9f5f9;}
-        .msg { max-width: 75%; padding: 12px 18px; border-radius: 20px; font-size: 15px; word-wrap: break-word;}
-        .msg.minha { background: var(--cor-primaria); color: white; align-self: flex-end; border-bottom-right-radius: 5px;}
-        .msg.outra { background: #fff; color: #333; align-self: flex-start; border-bottom-left-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
-        .chat-input { padding: 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #ddd;}
-        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; outline: none;}
-        button { background: var(--cor-destaque); color: white; border: none; padding: 12px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;}
-        button:hover { background: #E0484D; }
-        .voltar { margin-bottom: 15px; color: var(--cor-primaria); text-decoration: none; font-weight: bold; align-self: flex-start;}
+        :root {
+            --cor-fundo: #F7F9FA;
+            --cor-primaria: #00A699;
+            --cor-destaque: #FF5A5F;
+            --cor-branco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--cor-fundo);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-container {
+            background: var(--cor-branco);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+
+        .chat-header {
+            background: var(--cor-primaria);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #e9f5f9;
+        }
+
+        .msg {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+
+        .msg.minha {
+            background: var(--cor-primaria);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .msg.outra {
+            background: #fff;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        button {
+            background: var(--cor-destaque);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #E0484D;
+        }
+
+        .voltar {
+            margin-bottom: 15px;
+            color: var(--cor-primaria);
+            text-decoration: none;
+            font-weight: bold;
+            align-self: flex-start;
+        }
     </style>
 </head>
+
 <body>
-    <a href="javascript:history.back()" class="voltar">⬅ Voltar</a>
-    
+    <a href="/" class="voltar">🏠 Início</a>
+
     <div class="chat-container">
         <div class="chat-header">
             Chat sobre: {{ propriedade.nome }}
         </div>
+
+        {% if erro %}
+        <div style="
+        background:#f8d7da;
+        color:#721c24;
+        padding:12px;
+        margin:10px;
+        border-radius:8px;
+        font-weight:bold;
+        text-align:center;">
+            {{ erro }}
+        </div>
+        {% endif %}
         
         <div class="chat-messages">
             {% if not mensagens %}
-                <p style="text-align: center; color: #888; margin-top: auto; margin-bottom: auto;">Envie uma mensagem para iniciar a conversa!</p>
+            <p style="text-align: center; color: #888; margin-top: auto; margin-bottom: auto;">Envie uma mensagem para
+                iniciar a conversa!</p>
             {% else %}
-                {% for msg in mensagens %}
-                    <div class="msg {% if msg.remetente == logado %}minha{% else %}outra{% endif %}">
-                        {{ msg.texto }}
-                    </div>
-                {% endfor %}
+            {% for msg in mensagens %}
+            <div class="msg {% if msg.remetente == logado %}minha{% else %}outra{% endif %}">
+                {{ msg.texto }}
+            </div>
+            {% endfor %}
             {% endif %}
         </div>
-        
+
         <form class="chat-input" method="POST">
             <input type="text" name="texto" placeholder="Digite sua mensagem..." required autocomplete="off">
             <button type="submit">Enviar</button>
         </form>
     </div>
 </body>
+
 </html>

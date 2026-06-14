@@ -70,12 +70,16 @@ def anunciar():
     if session.get('usuario_tipo') != 'anfitriao': return redirect('/')
     msg = None
     if request.method == 'POST':
+        tipos = request.form.getlist('tipos')
+
+        if not tipos:
+            tipos = ['basica']
         p = meu_pousala.anunciar_propriedade( #abstracao
             Anfitriao(session['usuario_nome'], session['usuario_email'], ""), 
             request.form.get('nome'), 
             request.form.get('localizacao'), 
             int(request.form.get('capacidade')), 
-            float(request.form.get('preco'))
+            float(request.form.get('preco')), tipos
         )
         msg = "Sucesso! Anúncio publicado." if p else "Erro: Nome da propriedade já existe."
     return render_template('anunciar.html', mensagem=msg)
@@ -196,6 +200,21 @@ def chat(nome, h_email):
     msgs = meu_pousala.obter_mensagens(p_nome, h_e, a_e)
     return render_template('chat.html', propriedade=p, mensagens=msgs, logado=log, hospede_email=h_e, erro=erro_chat)
 
+@app.route('/excluir_imovel/<nome>')
+def excluir_imovel(nome):
+
+    if session.get('usuario_tipo') != 'anfitriao':
+        return redirect('/')
+
+    nome = urllib.parse.unquote(nome)
+
+    meu_pousala.propriedades[:] = [
+        p for p in meu_pousala.propriedades
+        if p.nome != nome
+    ]
+
+    return redirect('/painel')
+
 @app.route('/painel', methods=['GET', 'POST'])
 def painel():
     if session.get('usuario_tipo') != 'anfitriao': return redirect('/')
@@ -221,10 +240,35 @@ def minhas_reservas():
     for p in meu_pousala.propriedades:
         for r in p.reservas:
             if r.hospede.email.strip().lower() == e_log: 
-                viagens.append({'propriedade': p.nome, 'localizacao': p.localizacao, 'data_inicio': r.data_inicio, 'data_fim': r.data_fim, 'status': r.status})
+                viagens.append({'propriedade': p.nome, 'localizacao': p.localizacao, 'data_inicio': r.data_inicio, 'data_fim': r.data_fim, 'status': r.status, 'tipo': r.tipo, 'preco': r.preco_final, 'anfitriao': p.anfitriao.email})
                 
     chats = meu_pousala.obter_chats_usuario(e_log)
     return render_template('minhas_reservas.html', reservas=viagens, contatos_chat=chats)
+
+@app.route('/cancelar_reserva/<nome>/<data_inicio>')
+def cancelar_reserva(nome, data_inicio):
+
+    if session.get('usuario_tipo') != 'hospede':
+        return redirect('/')
+
+    email = session['usuario_email'].strip().lower()
+    nome = urllib.parse.unquote(nome)
+
+    for p in meu_pousala.propriedades:
+
+        if p.nome == nome:
+
+            for r in p.reservas:
+
+                if (
+                    r.hospede.email.strip().lower() == email
+                    and r.data_inicio == data_inicio
+                    and r.status == "ativa"
+                ):
+                    r.status = "cancelada"
+                    return redirect('/minhas_reservas')
+
+    return redirect('/minhas_reservas')
 
 @app.route('/favoritar/<nome>', methods=['POST'])
 def favoritar(nome):

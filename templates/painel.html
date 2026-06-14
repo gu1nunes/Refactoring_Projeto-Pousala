@@ -1,28 +1,103 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Meu Painel - pousa.lá</title>
     <style>
-        :root { --cor-fundo: #F7F9FA; --cor-primaria: #00A699; --cor-destaque: #FF5A5F; --cor-texto: #484848; --cor-branco: #FFFFFF; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto); margin: 0; padding: 0; }
-        header { background-color: var(--cor-branco); padding: 15px 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        header h1 { color: var(--cor-primaria); margin: 0; font-size: 24px; }
-        header a { text-decoration: none; color: var(--cor-texto); font-weight: bold; padding: 10px 20px; border-radius: 8px; border: 2px solid var(--cor-primaria); transition: all 0.3s ease; }
-        header a:hover { background-color: var(--cor-primaria); color: var(--cor-branco); }
-        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .saudacao { font-size: 28px; color: var(--cor-primaria); margin-bottom: 30px; }
-        .card-propriedade { background: var(--cor-branco); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; border-top: 6px solid var(--cor-primaria); }
-        .card-propriedade h2 { margin-top: 0; color: var(--cor-texto); font-size: 22px; }
-        .reserva-item { background-color: #e9f5f9; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid var(--cor-destaque); }
-        .sem-reserva { color: #888; font-style: italic; }
+        :root {
+            --cor-fundo: #F7F9FA;
+            --cor-primaria: #00A699;
+            --cor-destaque: #FF5A5F;
+            --cor-texto: #484848;
+            --cor-branco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--cor-branco);
+            padding: 15px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: var(--cor-primaria);
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header a {
+            text-decoration: none;
+            color: var(--cor-texto);
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid var(--cor-primaria);
+            transition: all 0.3s ease;
+        }
+
+        header a:hover {
+            background-color: var(--cor-primaria);
+            color: var(--cor-branco);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .saudacao {
+            font-size: 28px;
+            color: var(--cor-primaria);
+            margin-bottom: 30px;
+        }
+
+        .card-propriedade {
+            background: var(--cor-branco);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            border-top: 6px solid var(--cor-primaria);
+        }
+
+        .card-propriedade h2 {
+            margin-top: 0;
+            color: var(--cor-texto);
+            font-size: 22px;
+        }
+
+        .reserva-item {
+            background-color: #e9f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--cor-destaque);
+        }
+
+        .sem-reserva {
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
+
 <body>
 
     <header>
         <h1>pousa.lá</h1>
-        <a href="javascript:history.back()">Voltar</a>
+        <a href="/">🏠 Início</a>
     </header>
 
     <div class="container">
@@ -30,54 +105,72 @@
         <p>Aqui está o resumo das suas propriedades:</p>
 
         {% for prop in anfitriao.propriedades %}
-            <div class="card-propriedade">
-                <h2>🏨 {{ prop.nome }} <span style="font-size: 14px; color: #666; font-weight: normal;">({{ prop.localizacao }})</span></h2>
-                
-                <h3>Reservas Ativas:</h3>
-                
-                {% if not prop.reservas %}
-                    <p class="sem-reserva">Nenhuma reserva para este imóvel ainda.</p>
-                {% else %}
-                    {% for reserva in prop.reservas %}
-                        <div class="reserva-item">
-                            <p>👤 <strong>Hóspede:</strong> {{ reserva.hospede.email }}</p>
-                            <p>📅 <strong>Período:</strong> {{ reserva.data_inicio }} até {{ reserva.data_fim }}</p>
-                            <p>✅ <strong>Status:</strong> {{ reserva.status|capitalize }}</p>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+        <div class="card-propriedade">
+            <h2>🏨 {{ prop.nome }} <span style="font-size: 14px; color: #666; font-weight: normal;">({{ prop.localizacao
+                    }})</span></h2>
+
+            <h3>Reservas Ativas:</h3>
+
+            {% if not prop.reservas %}
+            <p class="sem-reserva">Nenhuma reserva para este imóvel ainda.</p>
+            {% else %}
+            {% for reserva in prop.reservas %}
+            <div class="reserva-item">
+                <p>👤 <strong>Hóspede:</strong> {{ reserva.hospede.email }}</p>
+                <p>📅 <strong>Período:</strong> {{ reserva.data_inicio }} até {{ reserva.data_fim }}</p>
+                <p>⭐ <strong>Tipo:</strong> {{ reserva.tipo|upper }}</p>
+                <p>💰 <strong>Total:</strong> R$ {{ reserva.preco_final }}</p>
+                <p>✅ <strong>Status:</strong> {{ reserva.status|capitalize }}</p>
             </div>
+            {% endfor %}
+            {% endif %}
+
+            <br>
+            
+            <a href="/excluir_imovel/{{ prop.nome|urlencode }}" style=" background:#dc3545; color:white; padding:10px 15px; border-radius:6px; text-decoration:none;">
+                🗑 Excluir Imóvel
+            </a>
+        </div>
         {% endfor %}
 
         <div class="card-propriedade" style="border-top-color: #333; background-color: #fdfdfd;">
             <h3 style="margin-top: 0;">Criar Dúvida Frequente (FAQ) 💡</h3>
-            <p style="font-size: 14px; color: #666;">Economize tempo respondendo as dúvidas mais comuns dos seus hóspedes antecipadamente.</p>
+            <p style="font-size: 14px; color: #666;">Economize tempo respondendo as dúvidas mais comuns dos seus
+                hóspedes antecipadamente.</p>
             <form method="POST">
-                <select name="prop_nome" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+                <select name="prop_nome" required
+                    style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
                     {% for p in anfitriao.propriedades %}
-                        <option value="{{ p.nome }}">{{ p.nome }}</option>
+                    <option value="{{ p.nome }}">{{ p.nome }}</option>
                     {% endfor %}
                 </select>
-                <input type="text" name="pergunta" placeholder="A Pergunta (Ex: Tem vaga de garagem?)" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
-                <input type="text" name="resposta" placeholder="A Resposta (Ex: Sim, para 2 carros.)" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
-                <button type="submit" style="background: #333; color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;">Salvar Pergunta no FAQ</button>
+                <input type="text" name="pergunta" placeholder="A Pergunta (Ex: Tem vaga de garagem?)" required
+                    style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
+                <input type="text" name="resposta" placeholder="A Resposta (Ex: Sim, para 2 carros.)" required
+                    style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px;">
+                <button type="submit"
+                    style="background: #333; color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;">Salvar
+                    Pergunta no FAQ</button>
             </form>
         </div>
 
         <h2 style="margin-top: 40px; color: var(--cor-primaria);">Caixa de Mensagens 💬</h2>
         {% if not contatos_chat %}
-            <p class="sem-reserva">Nenhum hóspede entrou em contato ainda.</p>
+        <p class="sem-reserva">Nenhum hóspede entrou em contato ainda.</p>
         {% else %}
-            {% for prop_nome, hosp_email in contatos_chat %}
-                <div class="reserva-item" style="border-left-color: #333; background-color: #f0f0f0;">
-                    <p>📩 <strong>Hóspede:</strong> {{ hosp_email }}</p>
-                    <p>🏨 <strong>Referente a:</strong> {{ prop_nome }}</p>
-                    <a href="/chat/{{ prop_nome|urlencode }}/{{ hosp_email }}" style="display: inline-block; margin-top: 10px; color: #00A699; font-weight: bold; text-decoration: none;">Responder ➔</a>
-                </div>
-            {% endfor %}
+        {% for prop_nome, hosp_email in contatos_chat %}
+        <div class="reserva-item" style="border-left-color: #333; background-color: #f0f0f0;">
+            <p>📩 <strong>Hóspede:</strong> {{ hosp_email }}</p>
+            <p>🏨 <strong>Referente a:</strong> {{ prop_nome }}</p>
+            <a href="/chat/{{ prop_nome|urlencode }}/{{ hosp_email }}"
+                style="display: inline-block; margin-top: 10px; color: #00A699; font-weight: bold; text-decoration: none;">Responder
+                ➔</a>
+        </div>
+        {% endfor %}
         {% endif %}
 
     </div>
 
 </body>
+
 </html>

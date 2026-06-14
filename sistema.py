@@ -58,12 +58,13 @@ class Anfitriao(Usuario): #heranca, classe filha, herda tudo de usuario
    
 
 class Propriedade: #modela o lugar q pode ser alugado
-    def __init__(self, nome, localizacao, capacidade, preco, anfitriao): #construtor
+    def __init__(self, nome, localizacao, capacidade, preco, anfitriao, tipos_reserva=None): #construtor
         self.nome = nome; 
         self.localizacao = localizacao; 
         self.capacidade = capacidade; 
         self.preco = preco; 
         self.anfitriao = anfitriao
+        self.tipos_reserva = tipos_reserva or ["basica"]  # Lista de tipos de reserva disponíveis
         self.__reservas = []; #encapsulamento, listas privadas
         self.__avaliacoes = []
     @property #transforma um metodo em um atributo
@@ -85,6 +86,9 @@ class Propriedade: #modela o lugar q pode ser alugado
         start = datetime.strptime(d_in, '%Y-%m-%d'); #transforma texto em data real
         end = datetime.strptime(d_out, '%Y-%m-%d') 
         for res in self.__reservas: #verificar conflito com cada reserva já feita
+            if res.status == "cancelada":
+                continue
+            
             r_s = datetime.strptime(res.data_inicio, '%Y-%m-%d'); 
             r_e = datetime.strptime(res.data_fim, '%Y-%m-%d')
             if not (end <= r_s or start >= r_e): 
@@ -107,6 +111,10 @@ class Reserva:
     @property
     def status(self): 
         return self.__status #encapsulamento, devolve se a reserva esta ativa ou concluida, @property p ser so leitura e n conseguir alterar p cancelado por fora
+    
+    @status.setter
+    def status(self, novo_status):
+        self.__status = novo_status #permite alterar o status da reserva, p exemplo, para cancelado
 
 class Sistema: #responsavel por app.py, regras do negocio e o banco de dados
     def __init__(self): #construtor
@@ -144,9 +152,9 @@ class Sistema: #responsavel por app.py, regras do negocio e o banco de dados
             return Anfitriao(n, e, s)
         return None
 
-    def anunciar_propriedade(self, anf, n, l, c, preco):
+    def anunciar_propriedade(self, anf, n, l, c, preco, tipos_reserva):
         if self.db.salvar_propriedade(n, l, c, preco, anf.email):  #salva no BD
-            p = Propriedade(n, l, c, preco, anf); #cria um objeto
+            p = Propriedade(n, l, c, preco, anf, tipos_reserva); #cria um objeto
             self.__propriedades.append(p); #guarda no sistema
             return p 
         return None

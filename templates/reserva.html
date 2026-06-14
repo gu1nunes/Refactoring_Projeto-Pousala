@@ -1,31 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Reserva - pousa.lá</title>
     <style>
-        :root { --cor-fundo: #F7F9FA; --cor-primaria: #00A699; --cor-destaque: #FF5A5F; --cor-texto: #484848; --cor-branco: #FFFFFF; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--cor-fundo); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card-reserva { background-color: var(--cor-branco); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); width: 100%; max-width: 450px; }
-        h2 { color: var(--cor-primaria); text-align: center; margin-top: 0;}
-        .info-local { background: #e9f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 15px; line-height: 1.5;}
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;}
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        input:disabled { background-color: #f0f0f0; color: #666; cursor: not-allowed; }
-        button { width: 100%; background-color: var(--cor-destaque); color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px;}
-        button:hover { background-color: #E0484D; }
-        .voltar { display: block; text-align: center; margin-top: 15px; color: var(--cor-primaria); text-decoration: none; font-weight: bold;}
-        .sucesso { background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px;}
-        .erro-alerta { background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px; }
-        .total-box { background-color: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; text-align: right; font-size: 18px; color: var(--cor-primaria); margin-bottom: 15px; }
+        :root {
+            --cor-fundo: #F7F9FA;
+            --cor-primaria: #00A699;
+            --cor-destaque: #FF5A5F;
+            --cor-texto: #484848;
+            --cor-branco: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--cor-fundo);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card-reserva {
+            background-color: var(--cor-branco);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h2 {
+            color: var(--cor-primaria);
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .info-local {
+            background: #e9f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        input:disabled {
+            background-color: #f0f0f0;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        button {
+            width: 100%;
+            background-color: var(--cor-destaque);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #E0484D;
+        }
+
+        .voltar {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--cor-primaria);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .sucesso {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .erro-alerta {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .total-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 18px;
+            color: var(--cor-primaria);
+            margin-bottom: 15px;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="card-reserva">
         <h2>Confirmar Reserva</h2>
-        
+
         <div class="info-local">
             <strong>🏨 Propriedade:</strong> {{ propriedade.nome }} <br>
             <strong>📍 Local:</strong> {{ propriedade.localizacao }} <br>
@@ -33,37 +144,45 @@
         </div>
 
         {% if erro %}
-            <div class="erro-alerta">{{ erro }}</div>
+        <div class="erro-alerta">{{ erro }}</div>
         {% endif %}
 
         {% if mensagem %}
-            <div class="sucesso">{{ mensagem }}</div>
-            <a href="/minhas_reservas" class="voltar">Ver minhas viagens</a>
-            <a href="/" class="voltar" style="color: #666;">Voltar ao início</a>
+        <div class="sucesso">{{ mensagem }}</div>
+        <a href="/minhas_reservas" class="voltar">Ver minhas viagens</a>
+        <a href="/" class="voltar" style="color: #666;">Voltar ao início</a>
         {% else %}
-            <form method="POST">
-                <div class="form-group">
-                    <label>Reservando em nome de:</label>
-                    <input type="text" value="{{ session.usuario_nome }} ({{ session.usuario_email }})" disabled>
-                </div>
-                
-                <div class="form-group">
-                    <label>Data de Check-in</label>
-                    <input type="date" name="data_inicio" id="data_inicio" required>
-                </div>
-                <div class="form-group">
-                    <label>Data de Check-out</label>
-                    <input type="date" name="data_fim" id="data_fim" required>
-                </div>
+        <form method="POST">
+            <div class="form-group">
+                <label>Reservando em nome de:</label>
+                <input type="text" value="{{ session.usuario_nome }} ({{ session.usuario_email }})" disabled>
+            </div>
 
-                <div class="total-box">
-                    <strong>Total: R$ <span id="valor-total">0.00</span></strong>
-                </div>
+            <div class="form-group">
+                <label>Data de Check-in</label>
+                <input type="date" name="data_inicio" id="data_inicio" required>
+            </div>
+            <div class="form-group">
+                <label>Data de Check-out</label>
+                <input type="date" name="data_fim" id="data_fim" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Reserva</label>
+                <select name="tipo_reserva" id="tipo_reserva"
+                    style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                    <option value="basica">Básica</option>
+                    <option value="premium">Premium (+ R$110)</option>
+                    <option value="vip">VIP (+ R$210)</option>
+                </select>
+            </div>
+            <div class="total-box">
+                <strong>Total: R$ <span id="valor-total">0.00</span></strong>
+            </div>
 
-                <button type="submit">Finalizar Reserva</button>
-            </form>
-            
-            <a href="javascript:history.back()" class="voltar">Cancelar e voltar</a>
+            <button type="submit">Finalizar Reserva</button>
+        </form>
+
+        <a href="/" class="voltar">🏠 Voltar ao início</a>
         {% endif %}
     </div>
 
@@ -83,13 +202,13 @@
 
         function atualizarCheckoutECalcular() {
             // Regra do Check-out mínimo
-            if(dataIn.value) {
+            if (dataIn.value) {
                 let d = new Date(dataIn.value);
                 d.setDate(d.getDate() + 1);
                 let nextDay = d.toISOString().split("T")[0];
                 dataOut.setAttribute('min', nextDay);
-                
-                if(dataOut.value && dataOut.value <= dataIn.value) {
+
+                if (dataOut.value && dataOut.value <= dataIn.value) {
                     dataOut.value = nextDay;
                 }
             }
@@ -99,10 +218,22 @@
                 const data1 = new Date(dataIn.value);
                 const data2 = new Date(dataOut.value);
                 const diffTime = data2 - data1;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
                 if (diffDays > 0) {
-                    spanTotal.innerText = (diffDays * precoDiaria).toFixed(2);
+                    let total = diffDays * precoDiaria;
+
+                    const tipo = document.getElementById('tipo_reserva').value;
+
+                    if (tipo === "premium") {
+                        total += 110;
+                    }
+
+                    if (tipo === "vip") {
+                        total += 210;
+                    }
+
+                    spanTotal.innerText = total.toFixed(2);
                 } else {
                     spanTotal.innerText = "0.00";
                 }
@@ -111,6 +242,10 @@
 
         dataIn.addEventListener('change', atualizarCheckoutECalcular);
         dataOut.addEventListener('change', atualizarCheckoutECalcular);
+
+        document.getElementById('tipo_reserva')
+            .addEventListener('change', atualizarCheckoutECalcular);
     </script>
 </body>
+
 </html>

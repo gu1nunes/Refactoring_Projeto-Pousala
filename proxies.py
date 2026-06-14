@@ -100,6 +100,11 @@ class ProxyChat:
             self.erro = "Erro: Mensagem não pode estar vazia."
             return False
         
+        # Valida limite de 500 caracteres
+        if len(texto) > 500:
+            self.erro = "Erro: Mensagem muito longa (máximo 500 caracteres)."
+            return False
+        
         # Verifica se remetente é hóspede ou anfitrião do chat
         remetente_normalizado = remetente_email.strip().lower()
         if remetente_normalizado not in [self.hospede_email, self.anfitriao_email]:

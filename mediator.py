@@ -59,16 +59,14 @@ class ChatMediator:
         if hospede_email.strip().lower() == anfitriao_email.strip().lower():
             return False, "Erro: Não é possível conversar consigo mesmo."
         
-        # Regra 2: Validar que existe reserva ativa
-        propriedade = self.banco.buscar_propriedade(propriedade_nome)
-        if not propriedade:
-            return False, "Erro: Propriedade não encontrada."
-        
-        # Verifica se há reserva ativa entre hóspede e anfitrião
+        # Regra 2: Validar que existe reserva ativa entre hóspede e anfitrião nesta propriedade
+        reservas = self.banco.buscar_reservas()
         tem_reserva = False
-        for reserva in propriedade.get('reservas', []):
-            if (reserva['hospede_email'].strip().lower() == hospede_email.strip().lower() and
-                reserva['anfitriao_email'].strip().lower() == anfitriao_email.strip().lower()):
+        
+        for reserva in reservas:
+            # reserva[1] = propriedade_nome, reserva[2] = hospede_email
+            if (str(reserva[1]).strip().lower() == propriedade_nome.strip().lower() and
+                str(reserva[2]).strip().lower() == hospede_email.strip().lower()):
                 tem_reserva = True
                 break
         
