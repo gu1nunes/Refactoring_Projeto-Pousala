@@ -1,6 +1,6 @@
 
 
-| Problema encontrado                       | Solução utilizada    |
+| Problema "encontrado"                       | Padrão utilizado    |
 | ----------------------------------------- | -------------------- |
 | Criação de diferentes tipos de reserva    | **Abstract Factory** |
 | Validações espalhadas pelo sistema        | **Proxy**            |
@@ -14,7 +14,7 @@
 
 ##  Problema identificado
 
-No sistema original, toda reserva era criada praticamente da mesma forma.
+No sistema original, toda reserva era criada da mesma forma.
 
 Porém, o projeto precisava oferecer diferentes categorias:
 
@@ -80,7 +80,6 @@ ReservaPremiumFactory
 ReservaVIPFactory
 ```
 Cada classe é responsável por montar um tipo específico de reserva.
-
 
 Exemplo:
 
