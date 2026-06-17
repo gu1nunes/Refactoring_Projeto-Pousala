@@ -1,20 +1,4 @@
-# 🚀 Pousala 2.0
 
-# Refatoração utilizando Design Patterns
-
-> **Objetivo da apresentação:** Demonstrar quais problemas identificamos no sistema, por que escolhemos cada Design Pattern e como cada um foi implementado dentro da arquitetura do projeto.
-
----
-
-# 🎯 Objetivo
-
-Nosso objetivo **não foi apenas adicionar três Design Patterns ao projeto**.
-
-Primeiro analisamos o sistema existente e identificamos problemas reais de arquitetura, manutenção e escalabilidade.
-
-Depois disso, escolhemos padrões que resolvessem exatamente esses problemas.
-
-Cada padrão possui uma função específica:
 
 | Problema encontrado                       | Solução utilizada    |
 | ----------------------------------------- | -------------------- |
