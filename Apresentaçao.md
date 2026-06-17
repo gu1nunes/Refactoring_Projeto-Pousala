@@ -8,11 +8,11 @@
 
 ---
 
-# 🏭 1. ABSTRACT FACTORY
+# 1. ABSTRACT FACTORY
 
 ## Evita lógica de criação espalhada e muitos if/else
 
-## ❌ Problema identificado
+##  Problema identificado
 
 No sistema original, toda reserva era criada praticamente da mesma forma.
 
@@ -45,25 +45,18 @@ Quanto mais categorias fossem adicionadas, maior seria a duplicação de código
 
 ---
 
-# 💡 Por que utilizar Abstract Factory?
+#  Por que utilizar Abstract Factory?
 
 O Abstract Factory permite criar famílias de objetos relacionados sem que o restante do sistema saiba como eles são construídos.
 
 Ou seja:
-
 ```
 Sistema
-
 ↓
-
 Escolhe Factory
-
 ↓
-
 Factory cria Reserva
-
 ↓
-
 Reserva pronta
 ```
 
@@ -73,25 +66,21 @@ Quem conhece todas as regras de criação é a Factory.
 
 ---
 
-# 📂 Como implementamos
+#  Como implementamos
 
 Foi criado o arquivo:
 
 ```text
 factories.py
 ```
-
 Nele implementamos:
-
 ```python
 ReservaBasicaFactory
-
 ReservaPremiumFactory
-
 ReservaVIPFactory
 ```
-
 Cada classe é responsável por montar um tipo específico de reserva.
+
 
 Exemplo:
 
@@ -132,42 +121,27 @@ class ReservaVIPFactory:
 
 ---
 
-# 🔄 Onde é invocado?
+#  Onde é invocado?
 
 Fluxo completo:
 
 ```
 Usuário
-
 ↓
-
 Tela de Reserva
-
 ↓
-
 app.py
-
 ↓
-
 Sistema.registrar_reserva()
-
 ↓
-
 Escolha da Factory
-
 ↓
-
 factory.criar(...)
-
 ↓
-
 Reserva criada
-
 ↓
-
 Banco de Dados
 ```
-
 Trecho do sistema:
 
 ```python
@@ -182,42 +156,27 @@ else:
 
 return factory.criar(...)
 ```
-
 ---
-
-# 🎓 Conceitos de POO utilizados
+#  Conceitos de POO utilizados
 
 * Encapsulamento
-
 * Polimorfismo
-
 * Baixo acoplamento
-
-* Open/Closed Principle
-
 ---
 
-# ✅ Benefício obtido
+#  Benefício obtido
 
 Antes:
 
 ```
 Sistema
-
 ↓
-
 if
-
 ↓
-
 if
-
 ↓
-
 if
-
 ↓
-
 Reserva
 ```
 
@@ -225,13 +184,9 @@ Depois:
 
 ```
 Sistema
-
 ↓
-
 Factory
-
 ↓
-
 Reserva
 ```
 
@@ -263,31 +218,25 @@ Nenhum código existente precisa ser alterado.
 
 
 
-# 🛡️ 2. PROXY
+#  2. PROXY
 
 ## Controla acesso e centraliza validações antes de operações
 
-## ❌ Problema identificado
-
+##  Problema identificado
 Durante a análise percebemos que diversas validações estavam espalhadas pelo sistema.
 
-Por exemplo:
-
 Para reservar:
-
 * validar datas;
 * validar disponibilidade;
 * validar capacidade;
 * validar tipo da reserva.
 
 Para avaliação:
-
 * verificar se houve reserva;
 * verificar nota válida;
 * verificar duplicidade.
 
 Para chat:
-
 * verificar mensagem vazia;
 * verificar tamanho;
 * verificar permissões.
@@ -309,37 +258,28 @@ if nota > 5:
 
 ---
 
-# 💡 Por que utilizar Proxy?
+#  Por que utilizar Proxy?
 
 O Proxy controla o acesso antes que a operação aconteça.
-
 Primeiro o sistema pergunta ao Proxy:
-
 > "Essa operação pode ser realizada?"
-
 Se a resposta for positiva, a operação continua.
-
 Caso contrário, ela é interrompida.
 
 ---
 
-# 📂 Como implementamos
+#  Como implementamos
 
 Foi criado:
 
 ```text
 proxies.py
 ```
-
 Com quatro proxies especializados:
-
 ```python
 ProxyReserva
-
 ProxyAvaliacao
-
 ProxyChat
-
 ProxyPropriedade
 ```
 
@@ -377,31 +317,21 @@ def pode_reservar():
 
 ---
 
-# 🔄 Onde é invocado?
+#  Onde é invocado?
 
 Fluxo:
 
 ```
 Usuário
-
 ↓
-
 app.py
-
 ↓
-
 ProxyReserva
-
 ↓
-
 Validação
-
 ↓
-
 Sistema
-
 ↓
-
 Banco
 ```
 
@@ -423,31 +353,22 @@ Somente após a validação o sistema realiza a operação.
 
 ---
 
-# 🎓 Conceitos de POO utilizados
+#  Conceitos de POO utilizados
 
 * Encapsulamento
-
 * Composição
-
-* Responsabilidade Única
-
-* Reutilização
 
 ---
 
-# ✅ Benefício obtido
+#  Benefício obtido
 
 Antes:
 
 ```
 Rota
-
 ↓
-
 20 validações
-
 ↓
-
 Operação
 ```
 
@@ -455,18 +376,12 @@ Depois:
 
 ```
 Rota
-
 ↓
-
 Proxy
-
 ↓
-
 Operação
 ```
-
 Se uma regra mudar, basta alterar o Proxy.
-
 ---
 
 
@@ -480,11 +395,11 @@ Se uma regra mudar, basta alterar o Proxy.
 
 
 
-# 🤝 3. MEDIATOR
+#  3. MEDIATOR
 
 ## Reduz o acoplamento entre objetos que precisam se comunicar. 
 
-## ❌ Problema identificado
+##  Problema identificado
 
 O sistema possui comunicação entre:
 
@@ -503,7 +418,7 @@ ficariam espalhadas pelo projeto.
 
 ---
 
-# 💡 Por que utilizar Mediator?
+#  Por que utilizar Mediator?
 
 O Mediator centraliza toda comunicação.
 
@@ -511,9 +426,7 @@ Antes:
 
 ```
 Hospede
-
 ↔
-
 Anfitrião
 ```
 
@@ -521,30 +434,22 @@ Depois:
 
 ```
 Hospede
-
 ↓
-
 ChatMediator
-
 ↓
-
 Anfitrião
 ```
 
-Agora os usuários não precisam conhecer a implementação um do outro.
-
 ---
 
-# 📂 Como implementamos
+#  Como implementamos
 
 Foi criado:
 
 ```text
 mediator.py
 ```
-
 Classe principal:
-
 ```python
 ChatMediator
 ```
@@ -552,11 +457,8 @@ ChatMediator
 Ela é responsável por:
 
 * validar comunicação;
-
 * enviar mensagens;
-
 * registrar histórico;
-
 * gerenciar notificações.
 
 Método principal:
@@ -575,39 +477,25 @@ def enviar_mensagem(...):
 
 ---
 
-# 🔄 Onde é invocado?
+#  Onde é invocado?
 
 Fluxo:
 
 ```
 Usuário
-
 ↓
-
 Tela de Chat
-
 ↓
-
 app.py
-
 ↓
-
 ProxyChat
-
 ↓
-
 Sistema
-
 ↓
-
 ChatMediator
-
 ↓
-
 Banco de Dados
-
 ↓
-
 Notificações
 ```
 
@@ -631,13 +519,9 @@ Ou seja, o Sistema apenas delega a responsabilidade ao Mediator.
 
 ---
 
-# 🎓 Conceitos de POO utilizados
+#  Conceitos de POO utilizados
 
 * Baixo acoplamento
-
 * Encapsulamento
-
 * Composição
-
-* Centralização da comunicação
 
